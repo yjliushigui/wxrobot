@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>微信幸运28网页版</title>
+</head>
+<link rel="stylesheet" href="__CSS__/base.css">
+<link rel="stylesheet" href="__CSS__/spinner.css">
+<script src="__ASSETS__/js/jquery-1.10.2.min.js"></script>
+
+<style>
+    body {
+        background: url(__IMAGE__/bg.jpg) no-repeat;
+        background-size: 100% 100%;
+        overflow: hidden;
+    }
+
+    .spinner-box {
+        display: none;
+        margin-top: 300px;
+        z-index: 2;
+    }
+
+    .login-init {
+        left: 50%;
+        margin-top: 30px;
+        margin-left: -45px;
+        width: 100px;
+        height: 100px;
+        color: white;
+        text-align: center;
+        position: absolute;
+        font-weight: bold;
+    }
+</style>
+<body onload="polling()">
+<div class="login_box" style="z-index: 0;">
+    <div class="qrcode">
+        {$data['qrcode']}
+        <p class="sub_title">扫描二维码登录微信</p>
+        <div class="extension">
+            <div class="item">
+                <i class="icon web_wechat_login_phone_icon"></i>
+                <div class="cont">
+                    <h4 class="title">登录手机微信</h4>
+                    <p class="desc">
+                        手机上<!-- ngIf: lang == 'zh_CN' --><a ng-if="lang == 'zh_CN'"
+                                                            href="http://weixin.qq.com/cgi-bin/readtemplate?t=weixin_download_list&amp;lang=zh_CN"
+                                                            target="_blank" class="ng-scope">安装</a><!-- end ngIf: lang == 'zh_CN' -->
+                        <!-- ngIf: lang == 'zh_TW' --><!-- ngIf: lang != 'zh_CN' && lang != 'zh_TW' -->并登录微信</p>
+                </div>
+
+            </div>
+            <div class="item">
+                <i class="icon web_wechat_login_scan_icon"></i>
+                <div class="cont">
+                    <h4 class="title">进入“扫一扫”</h4>
+                    <p class="desc">从“发现”，进入“扫一扫”，扫码登录微信网页版</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="avatar">
+        <img class="img" src="">
+        <h4 class="sub_title">扫描成功</h4>
+        <p class="tips">请在手机上点击确认以登录</p>
+        <a href="__MODULE__/Wx" ng-click="isScan = false;" class="action">返回二维码登录</a>
+    </div>
+
+</div>
+<div class="maskLayer"></div>
+<div class="spinner-box">
+    <div class="login-init">
+        <label>初始化登录...</label>
+    </div>
+    <div class="spinner">
+        <div class="spinner-container container1">
+            <div class="circle1"></div>
+            <div class="circle2"></div>
+            <div class="circle3"></div>
+            <div class="circle4"></div>
+        </div>
+
+        <div class="spinner-container container2">
+            <div class="circle1"></div>
+            <div class="circle2"></div>
+            <div class="circle3"></div>
+            <div class="circle4"></div>
+        </div>
+        <div class="spinner-container container3">
+            <div class="circle1"></div>
+            <div class="circle2"></div>
+            <div class="circle3"></div>
+            <div class="circle4"></div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+
+<script>
+    function polling(){
+        var uuid = '{$data["uuid"]}';
+        var url = "{:Url('index.php/index/index/check_login')}";
+        $.ajax({
+            type:"GET",
+            dataType:"json",
+            url:url,
+            timeout:40000,     //ajax请求超时时间80秒
+            data:{time:"27",uuid:uuid}, //40秒后无论结果服务器都返回数据
+            success:function(data,textStatus){
+                //从服务器得到数据，显示数据并继续查询
+                if(data.success=="1"){
+                    console.log(data);
+                    var code =data.code;
+                    if (code == '201') {
+                        var icon = data.icon;
+                        console.log(icon);
+                        $('.avatar .img').attr('src', icon);
+                        $('.avatar').css('display', 'block');
+                        $('.qrcode').css('display', 'none');
+                    }
+                    if (code == '200') {
+                        $('.maskLayer').css('display', 'block');
+                        $('.spinner-box').css('display', 'block');
+                        window.location.href = "{$callback_url}";
+                    }
+                    if (code == '400') {
+                        location.reload();
+                    }
+                    polling();
+                }
+                //未从服务器得到数据，继续查询
+                if(data.success=="0"){
+                    console.log(data);
+                    polling();
+                }
+            },
+            //Ajax请求超时，继续查询
+            error:function(XMLHttpRequest,textStatus,errorThrown){
+                if(textStatus=="timeout"){
+                    console.log("超时");
+                    polling();
+                }
+            }
+
+        });
+    }
+
+</script>

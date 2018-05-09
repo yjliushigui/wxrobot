@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="__CSS__/base.css">
+    <link rel="stylesheet" href="__CSS__/spinner.css">
+    <script src="__ASSETS__/js/jquery-1.10.2.min.js"></script>
+    <title>Title</title>
+</head>
+<body onload="polling()">
+用户：{$user['UserName']}--{$user['NickName']}
+联系人列表:<br>
+{volist name="ContactList" id="vo"}
+用户名:{$vo.UserName}
+<br>昵称:{$vo.NickName}<br>
+{/volist}
+<script type="text/javascript">
+    function polling() {
+        var url = "{:Url('index.php/index/index/syncheck')}";
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: url,
+            timeout: 40000,     //ajax请求超时时间80秒
+            data: {time: "30"}, //40秒后无论结果服务器都返回数据
+            success: function (data, textStatus) {
+                //从服务器得到数据，显示数据并继续查询
+                if (data.success == "1") {
+                    if(data.sel==2){
+                        var mgs_url = "{:Url('index.php/index/index/webwxsync')}";
+                        $.get(mgs_url,function (e) {
+                            console.log(e);
+                        })
+                    }
+                    polling();
+                }
+                //未从服务器得到数据，继续查询
+                if (data.success == "0") {
+                    polling();
+                }
+            },
+            //Ajax请求超时，继续查询
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                if (textStatus == "timeout") {
+                    console.log("超时");
+                    polling();
+                }
+            }
+
+        });
+    }
+
+</script>
+</body>
+</html>
