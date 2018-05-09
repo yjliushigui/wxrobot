@@ -1,4 +1,6 @@
 # 微信机器人协议详情
+
+
 		时间戳：timestamp
 		时间戳取反:^timestamp
 		Uuid:Uuid
@@ -9,8 +11,13 @@
 		请求地址头:httpHeader
 		请求必须包体头:BaseRequest
 		通行证:passticket
+
+
 ## 1、登录二维码(获取UUID)
+
 <p>微信登录二维码是使用微信的登录接口生成的uuid继而生成相应的二维码废话不多说，直接上接口</p>
+
+
 ###（1）获取uuid
 <table>
 	<tr>
@@ -22,10 +29,16 @@
 	<td><code>GET</code></td>
 	</tr>
 </table>
+
+
 ### (2)生成二维码
 	https://login.weixin.qq.com/l/+uuid
 根据语言不同去生成二维码
+
+
 ##2、登录
+
+
 ###(1)扫码登录
 <table>
 	<tr>
@@ -54,6 +67,7 @@
 	*BaseRequest{Uin:"", Sid:"", Skey:"",DeviceID:"16位随机数"}
 	*passticket:""
 在这一步还需要将获取的cookie存储下来
+
 ##3、初始化
 这一部分开始url后面的参数需要进行urlencode
 <table>
@@ -79,8 +93,12 @@
 初始化成功返回数据格式为JSON，返回数据包括:最近联系人ContactList、用户信息User、初始心跳数据SyncKey
 
 从这一步开始就需要进行和微信的心跳数据通讯
+
+
 ##4、心跳和接收消息
 为什么要将接收信息和心跳放到一起进行处理呢，因为微信的心跳数据在有新消息的时候会发生变化，每当有新消息发送过来会伴随着新的心跳数据，最初的心跳数据将会被舍弃，如果长时间不更改心跳数据或者使用旧的心跳数据会造成登录超时或者非法操作等错误，严重者甚至封号，这个过程是保证你的机器人长时间稳定运行的重要环节
+
+
 ###(1)心跳
 	注:SynckeyHttpHeader根据不同版本的微信号使用的路径不一样对应的版本地址为
 		v1:https://webpush.wx.qq.com/cgi-bin/mmwebwx-bin/
@@ -107,6 +125,8 @@
 	</tr>
 </table>
 	返回retcode和selector，如果retcode不为0即心跳失败,selector 标志消息类型，0为没有消息，第二次心跳额synckey不变，不为0就代表有新的消息，调用消息获取接口获取新的消息,心跳数据发生变化
+
+
 ###(2)消息获取
 <table>
 	<tr>
@@ -130,6 +150,8 @@
 </table>
 		此接口返回最新的消息AddMsgList和新的心跳数据Synckey
 后面逐步完善和更新代码和注解，目前php代码比较完善!
+
+
 
 ##捐赠
 
